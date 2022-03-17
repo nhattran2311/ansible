@@ -1,0 +1,30 @@
+---
+
+- hosts: windows_machines
+  name: ping
+  tasks:
+    - name: ping windows machines
+      ansible.builtin.ping:
+        data: crash
+
+- hosts: wsl_machines
+  name: ping
+  tasks:
+    - name: ping localhost machines
+      ansible.builtin.ping:
+        data: crash
+
+
+- hosts: azure_machines
+  name: ping
+  tasks:
+    - name: ping azure machines
+      ansible.builtin.ping:
+        data: crash
+
+- hosts: linux_machines
+  name: ping
+  tasks:
+    - name: ping linux machines
+      ansible.builtin.ping:
+        data: crash
