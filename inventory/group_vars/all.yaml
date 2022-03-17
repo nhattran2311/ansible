@@ -1,0 +1,4 @@
+ansible_user: "{ user.name }"
+ansible_password: "{ user.password }"
+ansible_ssh_user: "{ user.name }"
+ansible_ssh_pass: "{ user.ssh_password }"
