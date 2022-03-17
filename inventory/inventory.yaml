@@ -1,0 +1,15 @@
+all:
+  hosts:
+  children:
+    wsl_machines:
+      hosts:
+        localhost
+
+    windows_machines:
+      hosts:
+        172.26.192.1
+
+    linux_machines:
+
+    azure_machines:
+
