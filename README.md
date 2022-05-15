@@ -4,7 +4,8 @@
  sudo apt install python3-pip \
  && sudo pip3 install pywinrm \
  && sudo pip3 install pyvmomi \
- && sudo pip3 install ansible
+ && sudo pip3 install ansible \
+ && apt-get install sshpass
 ```
 ## Ad-hoc commands
 
