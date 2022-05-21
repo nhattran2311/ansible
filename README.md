@@ -11,15 +11,23 @@
 ping all machines:
 ```
 ansible all -i inventory.yaml -m ping -u tnh5hc
+ansible-playbook -i inventory/inventory.yaml playbook/ping_all_machine.yaml --limit wsl
+```
+Install Docker on WSL2 locally:
+```
+ansible-playbook -i inventory/inventory.yaml playbook/deploy_docker_machine.yaml --limit wsl --vault-id ~/.vaultid
+```
+## Vault commands
+```
+ansible-vault decrypt inventory/group_vars/all/vault.yaml --vault-id ~/.vaultid
+```
+```
+ansible-vault encrypt inventory/group_vars/vault.yaml --vault-id ~/.vaultid
 ```
 Check current directory after login:
 ```
 ansible all -i inventory.yaml -m shell -a "pwd" -u ci
 ```
-
-
-## Playbook:
-See all available  [Ansible modules](https://docs.ansible.com/ansible/2.9/modules/list_of_all_modules.html)
 
 
 

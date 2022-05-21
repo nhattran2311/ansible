@@ -1,10 +1,11 @@
 ---
-
 - hosts: all
   name: Install Docker
-  remote_user: tnh5hc
+  connection: local
   become: true
   tasks:
+    - name: Uninstall docker
+      shell: sudo apt-get remove docker docker-engine docker.io containerd runc
     - name: Install packages to allow apt to use repository over HTTPS
       apt:
         name:
