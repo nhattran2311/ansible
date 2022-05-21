@@ -23,7 +23,7 @@ ansible-playbook -i inventory/inventory.yaml playbook/deploy_docker_machine.yaml
 ansible-vault decrypt inventory/group_vars/all/vault.yaml --vault-id ~/.vaultid
 ```
 ```
-ansible-vault encrypt inventory/group_vars/vault.yaml --vault-id ~/.vaultid
+ansible-vault encrypt inventory/group_vars/all/vault.yaml --vault-id ~/.vaultid
 ```
 Check current directory after login:
 ```
