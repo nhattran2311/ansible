@@ -1,0 +1,204 @@
+---
+- hosts: all
+  name: Setup Local environment
+  connection: local
+  pre_tasks:
+  - name: Change ownership of /etc directory
+    become: true
+    file:
+      path: /etc
+      owner: "{{ ansible_user }}"
+      state: directory
+
+  post_tasks:
+    - name: Change ownership of /etc directory back to root
+      become: true
+      command: chown -R root:root /etc
+  tasks:
+    - name: Clone the dotfiles repository
+      git:
+        repo: https://github.com/nhattran2311/dotfiles.git
+        dest: ~/dotfiles
+      remote_user: "{{ ansible_user }}"
+
+    - name: Install dependencies
+      become: true
+      become_method: sudo
+      become_user: root
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - fuse
+        - zsh
+        - ripgrep
+        - luarocks
+
+    - name: Create NVIM Folder
+      file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - "~/.config/nvim"
+        - "~/.local/bin"
+
+    - name: Copy configuration files
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"  
+      loop:
+        - { src: "~/dotfiles/.zshrc", dest: "~/.zshrc" }
+        - { src: "~/dotfiles/.config/nvim/", dest: "~/.config/nvim" }
+
+    - name: Check if NEOVIM is installed
+      stat:
+        path: "{{ item }}"
+      register: neovim_check
+      with_items:
+        - "~/.config/nvim"
+        - "~/.local/bin"
+        - "~/.local/share/nvim"
+
+    - name: Display NEOVIM status
+      debug:
+        msg: "NEOVIM is already installed"
+      when: neovim_check.results | map(attribute='stat.exists') | list | bool
+
+    # - name: Install required Lua modules
+    #   become: true
+    #   become_method: sudo
+    #   become_user: root
+    #   command: luarocks install {{ item }}
+    #   loop:
+    #     - nvim-tree.lua
+    #     - indent_blankline
+    #     - transparent
+    #     - toggleterm
+
+    - name: Install NEOVIM
+      raw: "{{ item }}"
+      args:
+        chdir: ~/dotfiles
+      loop:
+        - wget https://github.com/neovim/neovim/releases/download/v0.7.0/nvim.appimage -P ~/.local/share/nvim/
+        # - chmod u+x ~/.local/share/nvim/nvim.appimage && ~/.local/share/nvim/nvim.appimage
+      when: not neovim_check.results | map(attribute='stat.exists') | list | bool
+
+    - name: Set executable permissions and execute nvim.appimage
+      command: "{{ ansible_user_dir }}/.local/share/nvim/nvim.appimage"
+      args:
+        executable: /bin/bash
+        creates: "{{ ansible_user_dir }}/.local/share/nvim/nvim.appimage"
+      when: not neovim_check.results | map(attribute='stat.exists') | list | bool
+
+    - name: Create symbolic link for nvim
+      file:
+        src: "{{ ansible_user_dir }}/.local/share/nvim/nvim.appimage"
+        dest: "{{ ansible_user_dir }}/.local/bin/nvim"
+        state: link
+      when: not neovim_check.results | map(attribute='stat.exists') | list | bool
+
+    # - name: Install Packer
+    #   shell: "{{ item }}"
+    #   args:
+    #     chdir: ~/dotfiles
+    #   loop:
+    #     - git clone --depth 1 https://github.com/wbthomason/packer.nvim \
+    #       ~/.local/share/nvim/site/pack/packer/start/packer.nvim
+        # - nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+
+# ###### OHMYZSH ######
+#     - name: Check if Oh My Zsh is installed
+#       stat:
+#         path: "~/.oh-my-zsh"
+#       register: ohmyzsh_check
+
+#     - name: Display Oh My Zsh status
+#       debug:
+#         msg: "Oh My Zsh is already installed"
+#       when: ohmyzsh_check.stat.exists
+
+#     - name: Install OHMYZSH
+#       shell: "{{ item }}"
+#       args:
+#         chdir: ~/dotfiles
+#       loop:
+#         - sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+#         - git clone https://github.com/DarrinTisdale/zsh-aliases-exa ~/.oh-my-zsh/custom/plugins/zsh-aliases-exa && git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+#       when: not ohmyzsh_check.stat.exists
+
+# ###### StarShip ######
+#     - name: Check if StarShip is installed
+#       stat:
+#         path: "~/.config/starship.toml"
+#       register: startship_check
+
+#     - name: Display StarShip status
+#       debug:
+#         msg: "StarShip is already installed"
+#       when: startship_check.stat.exists
+
+#     - name: Install StarShip
+#       shell: "{{ item }}"
+#       args:
+#         chdir: ~/dotfiles
+#       loop:
+#         - curl -sS https://starship.rs/install.sh | sh -s -- -y
+#         - cp .config/starship.toml ~/.config/starship.toml
+#       when: not startship_check.stat.exists
+
+# ###### RUST + EXA ######
+#     - name: Install Rust
+#       shell: "{{ item }}"
+#       args:
+#         chdir: ~/dotfiles
+#       loop:
+#         # - yes 1 | curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+#         - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+#     - name: Set Rust environment variables
+#       shell: |
+#         source "$HOME/.cargo/env"
+#       args:
+#         executable: /bin/bash
+
+#     - name: Install EXA
+#       shell: "{{ item }}"
+#       args:
+#         chdir: ~/dotfiles
+#       loop:
+#         - $HOME/.cargo/bin/cargo install exa
+
+# ###### FZF ######
+#     - name: Check if FZF is installed
+#       stat:
+#         path: "~/.fzf/install"
+#       register: fzf_check
+
+#     - name: Display FZF status
+#       debug:
+#         msg: "FZF is already installed"
+#       when: fzf_check.stat.exists
+
+#     - name: Install FZF
+#       shell: "{{ item }}"
+#       args:
+#         chdir: ~/dotfiles
+#       loop:
+#         - git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+#         - ~/.fzf/install
+#       when: not fzf_check.stat.exists
+
+# ###### ZSH ######
+    - name: Update ZSH Config
+      shell: |
+        source ~/.zshrc
+      args:
+        executable: /bin/bash
+
+    - name: Change default shell to Zsh for the current user (Update /etc/passwd)
+      lineinfile:
+        path: /etc/passwd
+        regexp: '^{{ ansible_user }}:'
+        line: '{{ ansible_user }}:x:{{ ansible_user_id }}:{{ ansible_user_id }}:,,,:{{ ansible_user_dir }}:/usr/bin/zsh'
+        backup: yes

@@ -4,8 +4,25 @@
   connection: local
   become: true
   tasks:
-    - name: Uninstall docker
-      shell: sudo apt-get remove docker docker-engine docker.io containerd runc
+    - name: Uninstall Docker
+      apt:
+        name: docker-ce
+        state: absent
+        autoremove: yes
+      when: ansible_pkg_mgr == 'apt'
+
+    - name: Uninstall Docker
+      yum:
+        name: docker-ce
+        state: absent
+        autoremove: yes
+      when: ansible_pkg_mgr == 'yum'
+
+    - name: Verify Docker is uninstalled
+      shell: docker --version
+      register: docker_version
+      ignore_errors: yes
+
     - name: Install packages to allow apt to use repository over HTTPS
       apt:
         name:

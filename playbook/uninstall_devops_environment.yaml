@@ -1,0 +1,11 @@
+---
+- hosts: all
+  name: Install Docker
+  connection: local
+  tasks:
+    - name: Uninstall neovim and plugins
+      command: "{{ item }}"
+      loop:
+        - "rm -rf ~/.config/nvim"
+        - "rm -rf ~/.local/share/nvim"
+        - "rm -rf ~/.local/bin/nvim"

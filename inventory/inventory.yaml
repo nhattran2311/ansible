@@ -8,9 +8,10 @@ all:
             ansible_connection: local
             ansible_python_interpreter: "{{ansible_playbook_python}}"
 
-    windows_machines:
-      hosts:
-        172.26.192.1
+    # windows_machines:
+    #   hosts:
+    #     # replace your WINDOWS IP here
+    #     172.25.213.187
 
     linux_machines:
 
