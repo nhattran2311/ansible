@@ -32,7 +32,7 @@ ansible-playbook -i inventory/inventory.yaml playbook/setup_devops_environment.y
 
 1. Uninstall setup environment:
 ```
-ansible-playbook -i inventory/inventory.yaml playbook/uninstall_devops_environment.yaml --limit wsl
+ansible-playbook -i inventory/inventory.yaml playbook/remove_devops_environment.yaml --limit wsl
 ```
 
 ## Vault commands

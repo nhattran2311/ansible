@@ -21,6 +21,9 @@
         - zsh
         - ripgrep
         - luarocks
+        - xclip
+        - zip
+        - fontconfig
 
     - name: Create NVIM Folder
       file:
@@ -35,7 +38,6 @@
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"  
       loop:
-        - { src: "{{ ansible_user_dir }}/dotfiles/.zshrc", dest: "{{ ansible_user_dir }}/.zshrc" }
         - { src: "{{ ansible_user_dir }}/dotfiles/.config/nvim/", dest: "{{ ansible_user_dir }}/.config/nvim" }
 
     - name: Check if NEOVIM is installed
@@ -68,14 +70,42 @@
       args:
         chdir: "{{ ansible_user_dir }}/dotfiles"
       loop:
-        - wget https://github.com/neovim/neovim/releases/download/v0.7.0/nvim.appimage -P {{ ansible_user_dir }}/.local/share/nvim/
+        - wget https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage -P {{ ansible_user_dir }}/.local/share/nvim/
       when: not neovim_check.results | map(attribute='stat.exists') | list | bool
 
-    - name: Set executable permissions and execute nvim.appimage
-      command: "{{ ansible_user_dir }}/.local/share/nvim/nvim.appimage"
+    - name: Install pynvim package
+      pip:
+        name: pynvim
+        executable: pip3
+        state: present
+
+    - name: Download win32yank.zip
+      get_url:
+        url: "https://github.com/equalsraf/win32yank/releases/download/v0.0.4/win32yank-x64.zip"
+        dest: "/tmp/win32yank.zip"
+
+    - name: Extract win32yank.exe
+      command: "unzip -j -o /tmp/win32yank.zip win32yank.exe -d /tmp/"
+
+    - name: Set executable permissions for win32yank.exe
+      file:
+        path: "/tmp/win32yank.exe"
+        mode: "+x"
+
+    - name: Move win32yank.exe to /usr/local/bin
+      command: "sudo mv /tmp/win32yank.exe /usr/local/bin/"
+
+    - name: Set executable permissions for nvim.appimage
+      command: chmod u+x "{{ ansible_user_dir }}/.local/share/nvim/nvim.appimage"
       args:
-        executable: /usr/bin/zsh
-        creates: "{{ ansible_user_dir }}/.local/share/nvim/nvim.appimage"
+        executable: /bin/bash
+      when: not neovim_check.results | map(attribute='stat.exists') | list | bool
+
+    - name: Execute nvim.appimage
+      command: "{{ ansible_user_dir }}/.local/share/nvim/nvim.appimage --headless -c 'q!'"
+      args:
+        executable: /bin/bash
+      ignore_errors: yes
       when: not neovim_check.results | map(attribute='stat.exists') | list | bool
 
     - name: Create symbolic link for nvim
@@ -124,6 +154,10 @@
         - curl -sS https://starship.rs/install.sh | sh -s -- -y
         - cp .config/starship.toml {{ ansible_user_dir }}/.config/starship.toml
       when: not startship_check.stat.exists
+      become: true
+      become_user: root
+      vars:
+        ansible_become_pass: "{{ ansible_password }}"
 
 ###### RUST + EXA ######
     - name: Install Rust
@@ -168,6 +202,14 @@
       when: not fzf_check.stat.exists
 
 ###### ZSH ######
+
+    - name: Copy configuration files
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"  
+      loop:
+        - { src: "{{ ansible_user_dir }}/dotfiles/.zshrc", dest: "{{ ansible_user_dir }}/.zshrc" }
+
     - name: Update ZSH Config
       shell: |
         source {{ ansible_user_dir }}/.zshrc
@@ -180,12 +222,63 @@
         name: "{{ ansible_user }}"
         shell: /usr/bin/zsh
 
+    - name: Update Packer
+      git:
+        repo: https://github.com/wbthomason/packer.nvim
+        dest: "{{ ansible_user_dir }}/.local/share/nvim/site/pack/packer/start/packer.nvim"
+        depth: 1
+        update: yes
+      become: true
+      become_user: "{{ ansible_user }}"
 
-    # - name: Install Packer
-    #   shell: "{{ item }}"
-    #   args:
-    #     chdir: "{{ ansible_user_dir }}/dotfiles"
-    #   loop:
-    #     - git clone --depth 1 https://github.com/wbthomason/packer.nvim \
-    #       {{ ansible_user_dir }}/.local/share/nvim/site/pack/packer/start/packer.nvim
-        # - nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+    - name: Install NVIM PLUGIN
+      shell: "{{ item }}"
+      args:
+        chdir: "{{ ansible_user_dir }}/dotfiles"
+      loop:
+        - nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+
+### DOWNLOAD NERDFONT AND INSTALLING ###
+    - name: Create temporary directory
+      tempfile:
+        state: directory
+      register: temp_dir
+
+    - name: Download Nerd Font ZIP file
+      get_url:
+        url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/Hack.zip"
+        dest: "{{ temp_dir.path }}/nerd_font.zip"
+
+    - name: Create directory for Nerd Font extraction
+      file:
+        path: "{{ temp_dir.path }}/nerd_font"
+        state: directory
+      delegate_to: localhost
+
+    - name: Unzip Nerd Font
+      command:
+        cmd: "unzip -q {{ temp_dir.path }}/nerd_font.zip -d {{ temp_dir.path }}/nerd_font"
+      delegate_to: localhost
+      register: unzip_result
+
+    - name: Check unzip status
+      fail:
+        msg: "Unzip failed"
+      when: unzip_result.rc != 0
+
+    - name: Create fonts directory
+      file:
+        path: "/home/{{ ansible_user }}/.local/share/fonts/"
+        state: directory
+        mode: 0755
+      become: true
+      when: unzip_result.rc != 0
+
+    - name: Move Nerd Font files
+      command:
+        cmd: "cp -R {{ temp_dir.path }}/nerd_font/ /home/{{ ansible_user }}/.local/share/fonts/"
+      become: true
+      when: unzip_result.rc == 0
+
+    - name: Refresh font cache
+      command: fc-cache -f -v

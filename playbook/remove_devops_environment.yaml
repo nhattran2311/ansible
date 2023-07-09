@@ -13,6 +13,9 @@
         - zsh
         - ripgrep
         - luarocks
+        - xclip
+        - zip
+        - fontconfig
 
     - name: Uninstall neovim and plugins
       command: "{{ item }}"
@@ -50,3 +53,10 @@
       loop:
         - "{{ ansible_user_dir }}/.fzf/uninstall"
         - "rm -rf {{ ansible_user_dir }}/.fzf"
+
+    - name: Remove Packer
+      file:
+        path: "{{ ansible_user_dir }}/.local/share/nvim/site/pack/packer/start/packer.nvim"
+        state: absent
+      become: true
+      become_user: "{{ ansible_user }}"
