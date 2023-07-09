@@ -2,11 +2,11 @@
 ## Install on WSL2
 ```
  sudo apt update -y \
- sudo apt install python3-pip -y \
- && sudo pip3 install pywinrm -y \
- && sudo pip3 install pyvmomi -y \
- && sudo pip3 install ansible -y \
- && apt-get install sshpass -y
+ && sudo apt install python3-pip -y \
+ && sudo pip3 install pywinrm \
+ && sudo pip3 install pyvmomi \
+ && sudo pip3 install ansible \
+ && sudo apt-get install sshpass -y
 ```
 
 ## Pre-Setup

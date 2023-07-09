@@ -164,13 +164,13 @@
         chdir: "{{ ansible_user_dir }}/dotfiles"
       loop:
         - "git clone --depth 1 https://github.com/junegunn/fzf.git {{ ansible_user_dir }}/.fzf"
-        - "{{ ansible_user_dir }}/.fzf/install"
+        - "yes | {{ ansible_user_dir }}/.fzf/install"
       when: not fzf_check.stat.exists
 
 ###### ZSH ######
     - name: Update ZSH Config
       shell: |
-        "source {{ ansible_user_dir }}/.zshrc"
+        source {{ ansible_user_dir }}/.zshrc
       args:
         executable: /usr/bin/zsh
 
