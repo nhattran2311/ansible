@@ -235,6 +235,7 @@
       shell: "{{ item }}"
       args:
         chdir: "{{ ansible_user_dir }}/dotfiles"
+        executable: /usr/bin/zsh
       loop:
         - nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
 
