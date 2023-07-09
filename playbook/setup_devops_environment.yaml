@@ -145,7 +145,7 @@
 
     - name: Set Rust environment variables
       shell: |
-        source "$HOME/.cargo/env"
+        source "{{ ansible_user_dir }}/.cargo/env"
       args:
         executable: /bin/bash
 
@@ -154,7 +154,7 @@
       args:
         chdir: ~/dotfiles
       loop:
-        - $HOME/.cargo/bin/cargo install exa
+        - "{{ ansible_user_dir }}/.cargo/bin/cargo install exa"
 
 ###### FZF ######
     - name: Check if FZF is installed
