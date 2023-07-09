@@ -10,22 +10,23 @@
 ```
 ## Ad-hoc commands
 
-ping all machines:
+1. Ping all machines:
 ```
 ansible-playbook -i inventory/inventory.yaml playbook/ping_all_machine.yaml --limit wsl
 ```
-Install Docker on WSL2 locally:
+1. Install Docker on WSL2 locally:
 ```
 ansible-playbook -i inventory/inventory.yaml playbook/deploy_docker_machine.yaml --limit wsl
 ```
 
+1. INSTALL SETUP ENVIRONMENT
 ```
 ansible-playbook -i inventory/inventory.yaml playbook/setup_devops_environment.yaml --limit wsl
 ```
 
-Uninstall Setup
+1. Uninstall SETUP ENVIRONMENT
 ```
-ansible-playbook -i inventory/inventory.yaml playbook/uninstall_devops_environment.yaml --limit wsl -vvv
+ansible-playbook -i inventory/inventory.yaml playbook/uninstall_devops_environment.yaml --limit wsl
 ```
 
 ## Vault commands

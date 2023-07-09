@@ -6,7 +6,7 @@
     - name: Clone the dotfiles repository
       git:
         repo: https://github.com/nhattran2311/dotfiles.git
-        dest: ~/dotfiles
+        dest: "{{ ansible_user_dir }}/dotfiles"
       remote_user: "{{ ansible_user }}"
 
     - name: Install dependencies
@@ -27,25 +27,25 @@
         path: "{{ item }}"
         state: directory
       loop:
-        - "~/.config/nvim"
-        - "~/.local/bin"
+        - "{{ ansible_user_dir }}/.config/nvim"
+        - "{{ ansible_user_dir }}/.local/bin"
 
     - name: Copy configuration files
       copy:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"  
       loop:
-        - { src: "~/dotfiles/.zshrc", dest: "~/.zshrc" }
-        - { src: "~/dotfiles/.config/nvim/", dest: "~/.config/nvim" }
+        - { src: "{{ ansible_user_dir }}/dotfiles/.zshrc", dest: "{{ ansible_user_dir }}/.zshrc" }
+        - { src: "{{ ansible_user_dir }}/dotfiles/.config/nvim/", dest: "{{ ansible_user_dir }}/.config/nvim" }
 
     - name: Check if NEOVIM is installed
       stat:
         path: "{{ item }}"
       register: neovim_check
       with_items:
-        - "~/.config/nvim"
-        - "~/.local/bin"
-        - "~/.local/share/nvim"
+        - "{{ ansible_user_dir }}/.config/nvim"
+        - "{{ ansible_user_dir }}/.local/bin"
+        - "{{ ansible_user_dir }}/.local/share/nvim"
 
     - name: Display NEOVIM status
       debug:
@@ -66,15 +66,15 @@
     - name: Install NEOVIM
       raw: "{{ item }}"
       args:
-        chdir: ~/dotfiles
+        chdir: "{{ ansible_user_dir }}/dotfiles"
       loop:
-        - wget https://github.com/neovim/neovim/releases/download/v0.7.0/nvim.appimage -P ~/.local/share/nvim/
+        - wget https://github.com/neovim/neovim/releases/download/v0.7.0/nvim.appimage -P {{ ansible_user_dir }}/.local/share/nvim/
       when: not neovim_check.results | map(attribute='stat.exists') | list | bool
 
     - name: Set executable permissions and execute nvim.appimage
       command: "{{ ansible_user_dir }}/.local/share/nvim/nvim.appimage"
       args:
-        executable: /bin/bash
+        executable: /usr/bin/zsh
         creates: "{{ ansible_user_dir }}/.local/share/nvim/nvim.appimage"
       when: not neovim_check.results | map(attribute='stat.exists') | list | bool
 
@@ -85,19 +85,10 @@
         state: link
       when: not neovim_check.results | map(attribute='stat.exists') | list | bool
 
-    # - name: Install Packer
-    #   shell: "{{ item }}"
-    #   args:
-    #     chdir: ~/dotfiles
-    #   loop:
-    #     - git clone --depth 1 https://github.com/wbthomason/packer.nvim \
-    #       ~/.local/share/nvim/site/pack/packer/start/packer.nvim
-        # - nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
-
 ###### OHMYZSH ######
     - name: Check if Oh My Zsh is installed
       stat:
-        path: "~/.oh-my-zsh"
+        path: "{{ ansible_user_dir }}/.oh-my-zsh"
       register: ohmyzsh_check
 
     - name: Display Oh My Zsh status
@@ -108,16 +99,16 @@
     - name: Install OHMYZSH
       shell: "{{ item }}"
       args:
-        chdir: ~/dotfiles
+        chdir: "{{ ansible_user_dir }}/dotfiles"
       loop:
         - sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-        - git clone https://github.com/DarrinTisdale/zsh-aliases-exa ~/.oh-my-zsh/custom/plugins/zsh-aliases-exa && git clone https://github.com/zsh-users/zsh-autosuggestions.git ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+        - git clone https://github.com/DarrinTisdale/zsh-aliases-exa {{ ansible_user_dir }}/.oh-my-zsh/custom/plugins/zsh-aliases-exa && git clone https://github.com/zsh-users/zsh-autosuggestions.git {{ ansible_user_dir }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions
       when: not ohmyzsh_check.stat.exists
 
 ###### StarShip ######
     - name: Check if StarShip is installed
       stat:
-        path: "~/.config/starship.toml"
+        path: "{{ ansible_user_dir }}/.config/starship.toml"
       register: startship_check
 
     - name: Display StarShip status
@@ -128,17 +119,17 @@
     - name: Install StarShip
       shell: "{{ item }}"
       args:
-        chdir: ~/dotfiles
+        chdir: "{{ ansible_user_dir }}/dotfiles"
       loop:
         - curl -sS https://starship.rs/install.sh | sh -s -- -y
-        - cp .config/starship.toml ~/.config/starship.toml
+        - cp .config/starship.toml {{ ansible_user_dir }}/.config/starship.toml
       when: not startship_check.stat.exists
 
 ###### RUST + EXA ######
     - name: Install Rust
       shell: "{{ item }}"
       args:
-        chdir: ~/dotfiles
+        chdir: "{{ ansible_user_dir }}/dotfiles"
       loop:
         # - yes 1 | curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
         - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -152,14 +143,14 @@
     - name: Install EXA
       shell: "{{ item }}"
       args:
-        chdir: ~/dotfiles
+        chdir: "{{ ansible_user_dir }}/dotfiles"
       loop:
         - "{{ ansible_user_dir }}/.cargo/bin/cargo install exa"
 
 ###### FZF ######
     - name: Check if FZF is installed
       stat:
-        path: "~/.fzf/install"
+        path: "{{ ansible_user_dir }}/.fzf/install"
       register: fzf_check
 
     - name: Display FZF status
@@ -170,21 +161,31 @@
     - name: Install FZF
       shell: "{{ item }}"
       args:
-        chdir: ~/dotfiles
+        chdir: "{{ ansible_user_dir }}/dotfiles"
       loop:
-        - git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-        - ~/.fzf/install
+        - "git clone --depth 1 https://github.com/junegunn/fzf.git {{ ansible_user_dir }}/.fzf"
+        - "{{ ansible_user_dir }}/.fzf/install"
       when: not fzf_check.stat.exists
 
 ###### ZSH ######
     - name: Update ZSH Config
       shell: |
-        source ~/.zshrc
+        "source {{ ansible_user_dir }}/.zshrc"
       args:
-        executable: /bin/bash
+        executable: /usr/bin/zsh
 
     - name: Change default shell to Zsh for the current user (Update /etc/passwd)
       become: true
       user:
         name: "{{ ansible_user }}"
         shell: /usr/bin/zsh
+
+
+    # - name: Install Packer
+    #   shell: "{{ item }}"
+    #   args:
+    #     chdir: "{{ ansible_user_dir }}/dotfiles"
+    #   loop:
+    #     - git clone --depth 1 https://github.com/wbthomason/packer.nvim \
+    #       {{ ansible_user_dir }}/.local/share/nvim/site/pack/packer/start/packer.nvim
+        # - nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'

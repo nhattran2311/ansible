@@ -1,11 +1,52 @@
 ---
 - hosts: all
-  name: Install Docker
+  name: Remove Setup
   connection: local
   tasks:
+    - name: Remove packages
+      become: true
+      apt:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - fuse
+        - zsh
+        - ripgrep
+        - luarocks
+
     - name: Uninstall neovim and plugins
       command: "{{ item }}"
       loop:
-        - "rm -rf ~/.config/nvim"
-        - "rm -rf ~/.local/share/nvim"
-        - "rm -rf ~/.local/bin/nvim"
+        - "rm -rf {{ ansible_user_dir }}/.config/nvim"
+        - "rm -rf {{ ansible_user_dir }}/.local/share/nvim"
+        - "rm -rf {{ ansible_user_dir }}/.local/bin/nvim"
+
+    - name: Remove Starship
+      become: true
+      file:
+        path: "{{ ansible_user_dir }}/.config/starship.toml"
+        state: absent
+
+    - name: Remove Rust
+      become: true
+      file:
+        path: "{{ ansible_user_dir }}/.cargo"
+        state: absent
+
+    - name: Remove Exa
+      become: true
+      file:
+        path: "{{ ansible_user_dir }}/.cargo/bin/exa"
+        state: absent
+
+    - name: Remove Oh My Zsh
+      become: true
+      file:
+        path: "{{ ansible_user_dir }}/.oh-my-zsh"
+        state: absent
+
+    - name: Remove fzf package
+      command: "{{ item }}"
+      loop:
+        - "{{ ansible_user_dir }}/.fzf/uninstall"
+        - "rm -rf {{ ansible_user_dir }}/.fzf"
