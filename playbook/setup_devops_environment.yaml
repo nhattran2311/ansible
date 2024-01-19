@@ -231,13 +231,13 @@
       become: true
       become_user: "{{ ansible_user }}"
 
-    - name: Install NVIM PLUGIN
-      shell: "{{ item }}"
-      args:
-        chdir: "{{ ansible_user_dir }}/dotfiles"
-        executable: /usr/bin/zsh
-      loop:
-        - nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+    # - name: Install NVIM PLUGIN
+    #   shell: "{{ item }}"
+    #   args:
+    #     chdir: "{{ ansible_user_dir }}/dotfiles"
+    #     executable: /usr/bin/zsh
+    #   loop:
+    #     - nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
 
 ### DOWNLOAD NERDFONT AND INSTALLING ###
     - name: Create temporary directory
