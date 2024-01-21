@@ -24,6 +24,8 @@
         - xclip
         - zip
         - fontconfig
+        - pre-commit
+        - typer
 
     - name: Create NVIM Folder
       file:
