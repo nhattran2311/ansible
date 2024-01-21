@@ -132,7 +132,7 @@
         chdir: "{{ ansible_user_dir }}/dotfiles"
       loop:
         - sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-        - git clone https://github.com/DarrinTisdale/zsh-aliases-exa {{ ansible_user_dir }}/.oh-my-zsh/custom/plugins/zsh-aliases-exa && git clone https://github.com/zsh-users/zsh-autosuggestions.git {{ ansible_user_dir }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+        - git clone https://github.com/zsh-users/zsh-syntax-highlighting.git {{ ansible_user_dir }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && git clone https://github.com/zsh-users/zsh-autosuggestions.git {{ ansible_user_dir }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions
       when: not ohmyzsh_check.stat.exists
 
 ###### StarShip ######
@@ -165,7 +165,6 @@
       args:
         chdir: "{{ ansible_user_dir }}/dotfiles"
       loop:
-        # - yes 1 | curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
         - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
     - name: Set Rust environment variables
