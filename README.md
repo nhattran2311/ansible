@@ -29,6 +29,10 @@ ansible-playbook -i inventory/inventory.yaml playbook/deploy_docker_machine.yaml
 ansible-galaxy install -r requirements.yml 
 ansible-playbook -i inventory/inventory.yaml playbook/KIND.yaml --limit wsl
 ```
+1. Install K9s on WSL2 locally:
+```
+ansible-playbook -i inventory/inventory.yaml playbook/K9s.yaml --limit wsl
+```
 
 1. Install setup environment:
 ```
