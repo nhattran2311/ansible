@@ -25,7 +25,10 @@
         - zip
         - fontconfig
         - pre-commit
-        - typer
+
+    - name: Install typer package
+      ansible.builtin.pip:
+        name: typer
 
     - name: Create NVIM Folder
       file:
@@ -211,11 +214,11 @@
       loop:
         - { src: "{{ ansible_user_dir }}/dotfiles/.zshrc", dest: "{{ ansible_user_dir }}/.zshrc" }
 
-    - name: Update ZSH Config
-      shell: |
-        source {{ ansible_user_dir }}/.zshrc
-      args:
-        executable: /usr/bin/zsh
+    # - name: Update ZSH Config
+    #   shell: |
+    #     source {{ ansible_user_dir }}/.zshrc
+    #   args:
+    #     executable: /usr/bin/zsh
 
     - name: Change default shell to Zsh for the current user (Update /etc/passwd)
       become: true

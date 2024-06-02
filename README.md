@@ -24,6 +24,11 @@ ansible-playbook -i inventory/inventory.yaml playbook/ping_all_machine.yaml --li
 ```
 ansible-playbook -i inventory/inventory.yaml playbook/deploy_docker_machine.yaml --limit wsl
 ```
+1. Install KIND on WSL2 locally:
+```
+ansible-galaxy install -r requirements.yml 
+ansible-playbook -i inventory/inventory.yaml playbook/KIND.yaml --limit wsl
+```
 
 1. Install setup environment:
 ```

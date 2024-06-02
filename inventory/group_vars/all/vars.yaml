@@ -1,5 +1,5 @@
-ansible_user: "tnh5hc"
-ansible_password: "tnh5hc"
+ansible_user: "hori2311"
+ansible_password: "hori2311"
 
 ansible_ssh_user: "{{ ansible_user }}"
 ansible_ssh_pass: "{{ ansible_password }}"

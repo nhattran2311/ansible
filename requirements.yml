@@ -1,0 +1,4 @@
+---
+- src: https://github.com/PyratLabs/ansible-role-kind.git
+  version: master
+  name: xanmanning.kind
