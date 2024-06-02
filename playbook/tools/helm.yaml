@@ -1,0 +1,15 @@
+---
+- name: Download Helm
+  get_url:
+    url: https://get.helm.sh/helm-v3.7.1-linux-amd64.tar.gz
+    dest: /tmp/helm-v3.7.1-linux-amd64.tar.gz
+    mode: '0755'
+
+- name: Extract Helm archive
+  unarchive:
+    src: /tmp/helm-v3.7.1-linux-amd64.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: Move Helm to /usr/local/bin
+  command: mv /tmp/linux-amd64/helm /usr/local/bin/helm

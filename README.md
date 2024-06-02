@@ -20,26 +20,14 @@ Please make the following changes in inventory/group_vars/all/vars.yaml:
 ```
 ansible-playbook -i inventory/inventory.yaml playbook/ping_all_machine.yaml --limit wsl
 ```
-1. Install Docker on WSL2 locally:
-```
-ansible-playbook -i inventory/inventory.yaml playbook/deploy_docker_machine.yaml --limit wsl
-```
-1. Install KIND on WSL2 locally:
+
+2. Install setup environment:
 ```
 ansible-galaxy install -r requirements.yml 
-ansible-playbook -i inventory/inventory.yaml playbook/KIND.yaml --limit wsl
-```
-1. Install K9s on WSL2 locally:
-```
-ansible-playbook -i inventory/inventory.yaml playbook/K9s.yaml --limit wsl
-```
-
-1. Install setup environment:
-```
 ansible-playbook -i inventory/inventory.yaml playbook/setup_devops_environment.yaml --limit wsl
 ```
 
-1. Uninstall setup environment:
+3. Uninstall setup environment:
 ```
 ansible-playbook -i inventory/inventory.yaml playbook/remove_devops_environment.yaml --limit wsl
 ```
@@ -53,17 +41,4 @@ ansible-vault decrypt inventory/group_vars/all/vault.yaml --vault-id ~/.vaultid
 Encrypt vault file:
 ```
 ansible-vault encrypt inventory/group_vars/all/vault.yaml --vault-id ~/.vaultid
-```
-
-Check the current directory after login:
-
-```
-ansible all -i inventory.yaml -m shell -a "pwd" -u ubuntu
-```
-
-
-
-Execute playbook to install Docker on guest VMs:
-```
-ansible-playbook -i inventory.yaml playbook.yaml
 ```

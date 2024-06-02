@@ -287,3 +287,24 @@
 
     - name: Refresh font cache
       command: fc-cache -f -v
+
+### SETUP CONTAINER TOOLS
+    - name: Setup Docker
+      become: true
+      import_tasks: tools/docker.yaml
+
+    - name: Setup Helm
+      become: true
+      import_tasks: tools/helm.yaml
+
+    - name: Setup K9s
+      become: true
+      import_tasks: tools/K9s.yaml
+
+    - name: Setup KIND
+      become: true
+      import_role:
+        name: xanmanning.kind
+      vars:
+        kind_install_dir: /usr/local/bin
+        kind_version: 0.23.0

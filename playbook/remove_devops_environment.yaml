@@ -53,6 +53,7 @@
       loop:
         - "{{ ansible_user_dir }}/.fzf/uninstall"
         - "rm -rf {{ ansible_user_dir }}/.fzf"
+      ignore_errors: yes
 
     - name: Remove Packer
       file:
@@ -60,3 +61,37 @@
         state: absent
       become: true
       become_user: "{{ ansible_user }}"
+
+    - name: Uninstall Docker
+      apt:
+        name: docker-ce
+        state: absent
+        autoremove: yes
+      become: true
+      when: ansible_pkg_mgr == 'apt'
+
+    - name: Uninstall Docker
+      yum:
+        name: docker-ce
+        state: absent
+        autoremove: yes
+      become: true
+      when: ansible_pkg_mgr == 'yum'
+
+    - name: Uninstall Helm
+      file:
+        path: /usr/local/bin/helm
+        state: absent
+      become: true
+
+    - name: Uninstall K9s
+      file:
+        path: /usr/local/bin/k9s
+        state: absent
+      become: true
+
+    - name: Uninstall KIND
+      file:
+        path: /usr/local/bin/kind
+        state: absent
+      become: true
