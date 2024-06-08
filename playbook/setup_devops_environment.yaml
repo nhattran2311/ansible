@@ -75,7 +75,7 @@
       args:
         chdir: "{{ ansible_user_dir }}/dotfiles"
       loop:
-        - wget https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage -P {{ ansible_user_dir }}/.local/share/nvim/
+        - wget https://github.com/neovim/neovim/releases/download/v0.10.0/nvim.appimage -P {{ ansible_user_dir }}/.local/share/nvim/
       when: not neovim_check.results | map(attribute='stat.exists') | list | bool
 
     - name: Install pynvim package
